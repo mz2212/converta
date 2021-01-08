@@ -1,0 +1,12 @@
+# Note: the values contained in this file are already programmed in and you should only need
+# the exe and ffmpeg to get running.
+# Rename me to config.toml when you've set the ffmpeg variables.
+#format = "webm" # Video container
+#codec = "librav1e" # Video codec. default is av1, note: doesn't work correctly with discord.
+#remove = true # Enable the removal of the gifs, and potential overwriting of videos.
+#inFolder = "" # Input folder, by default the noita gif folder.
+#outFolder = "" # Output folder, by default $USERDIR/Videos.
+
+# Realistically, you should only need to configure these two.
+ffmpegPath = "C:/bin/ffmpeg.exe" # The path to ffmpeg
+ffprobePath = "C:/bin/ffprobe.exe" # The path to ffprobe. You need these for this to work!

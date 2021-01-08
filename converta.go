@@ -8,12 +8,44 @@ import (
 
 	"github.com/floostack/transcoder/ffmpeg"
 	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 )
 
+type converter struct {
+	format      string
+	overwrite   bool
+	codec       string
+	ffmpegPath  string
+	ffprobePath string
+}
+
 func main() {
-	inFolder := filepath.Join(os.Getenv("USERPROFILE"), "/AppData/LocalLow/Nolla_Games_Noita/save_rec/screenshots_animated")
-	outFolder := filepath.Join(os.Getenv("USERPROFILE"), "/Videos") // Construct the paths for the Videos folder and Noita Gif folder
-	remove := true                                                  // Set to false if you don't want to delete the gifs after conversion
+	viper.SetDefault("inFolder", filepath.Join(os.Getenv("USERPROFILE"), "/AppData/LocalLow/Nolla_Games_Noita/save_rec/screenshots_animated"))
+	viper.SetDefault("outFolder", filepath.Join(os.Getenv("USERPROFILE"), "/Videos"))
+	viper.SetDefault("remove", true)
+	viper.SetDefault("format", "webm")
+	viper.SetDefault("codec", "librav1e")
+	viper.SetDefault("ffmpegPath", "C:/bin/ffmpeg.exe")
+	viper.SetDefault("ffprobePath", "C:/bin/ffprobe.exe")
+	viper.SetConfigName("config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		if err == err.(viper.ConfigFileNotFoundError) {
+			fmt.Println("Couldn't find config, using defaults!")
+		} else {
+			panic(err)
+		}
+	}
+
+	c := converter{
+		format:      viper.GetString("format"),
+		overwrite:   viper.GetBool("remove"),
+		codec:       viper.GetString("codec"),
+		ffmpegPath:  viper.GetString("ffmpegPath"),
+		ffprobePath: viper.GetString("ffprobePath"),
+	}
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -21,7 +53,7 @@ func main() {
 	}
 	defer watcher.Close()
 
-	err = watcher.Add(inFolder) // Tell the watcher to observe the gif folder
+	err = watcher.Add(viper.GetString("inFolder")) // Tell the watcher to observe the gif folder
 	if err != nil {
 		panic(err)
 	}
@@ -35,10 +67,10 @@ func main() {
 			if event.Op&fsnotify.Write == fsnotify.Write { // Check if the event contains a write event. Note that that's a binary "and"
 				fmt.Println("Encoding: ", event.Name)
 				webm := strings.Split(filepath.Base(event.Name), ".")[0] + ".webm" // Construct the video filename
-				outFile := filepath.Join(outFolder, webm)
-				convert(event.Name, outFile)
-				fmt.Println(outFile)
-				if remove {
+				outFile := filepath.Join(viper.GetString("outFolder"), webm)
+				c.convert(event.Name, outFile)
+				fmt.Println("Encoded: ", outFile)
+				if viper.GetBool("remove") {
 					os.Remove(event.Name)
 				}
 			}
@@ -53,20 +85,16 @@ func main() {
 
 }
 
-func convert(in string, out string) {
-	format := "webm" // Twiddle these to change the ffmpeg settings. I'll probably do something different in the end.
-	overwrite := true
-	codec := "librav1e"
-
+func (c converter) convert(in string, out string) {
 	opts := ffmpeg.Options{
-		OutputFormat: &format,
-		Overwrite:    &overwrite,
-		VideoCodec:   &codec,
+		OutputFormat: &c.format,
+		Overwrite:    &c.overwrite,
+		VideoCodec:   &c.codec,
 	}
 
-	ffmpegConf := ffmpeg.Config{ // :thinking: Not quite sure what to do about these. The library _needs_ to know where they are, and it might be different on between PCs.
-		FfmpegBinPath:   "C:/bin/ffmpeg.exe",
-		FfprobeBinPath:  "C:/bin/ffprobe.exe",
+	ffmpegConf := ffmpeg.Config{
+		FfmpegBinPath:   c.ffmpegPath,
+		FfprobeBinPath:  c.ffprobePath,
 		ProgressEnabled: false,
 	}
 
