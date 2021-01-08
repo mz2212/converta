@@ -1,0 +1,5 @@
+github.com/floostack/transcoder v1.1.1 h1:ApvdTZGt4r1N8dcT1PEl4jxX5OBHaOMY42kmCKNbYCE=
+github.com/floostack/transcoder v1.1.1/go.mod h1:lT+f8NEGaHP6AVeYLicas0EI0+TforD+DRuLziJg6bY=
+github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
+github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
+golang.org/x/sys v0.0.0-20191005200804-aed5e4c7ecf9/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
