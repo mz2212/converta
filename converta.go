@@ -66,7 +66,7 @@ func main() {
 			}
 			if event.Op&fsnotify.Write == fsnotify.Write { // Check if the event contains a write event. Note that that's a binary "and"
 				fmt.Println("Encoding: ", event.Name)
-				webm := strings.Split(filepath.Base(event.Name), ".")[0] + ".webm" // Construct the video filename
+				webm := strings.Split(filepath.Base(event.Name), ".")[0] + viper.GetString("format") // Construct the video filename
 				outFile := filepath.Join(viper.GetString("outFolder"), webm)
 				c.convert(event.Name, outFile)
 				fmt.Println("Encoded: ", outFile)
